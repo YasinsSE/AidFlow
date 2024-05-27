@@ -374,7 +374,7 @@ public class NGOAidManagementSystem {
             String ccInfo = ccInfoText.getText();
             String billingAddress = billingAddressText.getText();
     
-            if (!name.isEmpty() && !contact.isEmpty() && !ccInfo.isEmpty() && !billingAddress.isEmpty()) {
+            if (!name.isEmpty() && !contact.isEmpty() && !billingAddress.isEmpty()) {
                 // Ensure the donation amount is a valid number if provided
                 if (!amountStr.isEmpty()) {
                     try {
@@ -386,12 +386,18 @@ public class NGOAidManagementSystem {
                     }
                 }
     
+                // Check if the donation type is financial and ensure credit card information is provided
+                if (type.equals("Financial Donation") && ccInfo.isEmpty()) {
+                    JOptionPane.showMessageDialog(donateFrame, "Credit Card Information is required for financial donations.");
+                    return;
+                }
+    
                 String amount = amountStr.isEmpty() ? "0" : amountStr.replace("$", "").trim(); // Remove the dollar sign if present
                 saveDonation(username, name, contact, type, description, amount, ccInfo, billingAddress);
                 JOptionPane.showMessageDialog(donateFrame, "Thank you for your donation!");
                 donateFrame.dispose();
             } else {
-                JOptionPane.showMessageDialog(donateFrame, "Full Name, Contact Information, Credit Card Information, and Billing Address are required.");
+                JOptionPane.showMessageDialog(donateFrame, "Full Name, Contact Information, and Billing Address are required.");
             }
         });
     
@@ -404,6 +410,7 @@ public class NGOAidManagementSystem {
     
     
     
+    
     private static void saveDonation(String username, String name, String contact, String type, String description, String amount, String ccInfo, String billingAddress) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("donations.txt", true))) {
             bw.write(username + "," + name + "," + contact + "," + type + "," + description + "," + amount + "," + ccInfo + "," + billingAddress);
@@ -411,8 +418,7 @@ public class NGOAidManagementSystem {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    
+    }    
     
     
     private static void viewDonationHistory(String username) {
@@ -482,6 +488,7 @@ public class NGOAidManagementSystem {
     
         JTextArea textArea = new JTextArea(10, 50);
         textArea.setFont(new Font("Serif", Font.PLAIN, 24));
+        textArea.setEditable(false); 
         textArea.setText("Aid Request Status for " + username + ":\n\n");
     
         try (BufferedReader br = new BufferedReader(new FileReader("aid_requests.txt"))) {
@@ -1295,5 +1302,6 @@ public class NGOAidManagementSystem {
         statsFrame.getContentPane().add(new JScrollPane(mainPanel));
         statsFrame.setVisible(true);
     }
+    
     
 }    
