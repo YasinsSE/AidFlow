@@ -47,7 +47,7 @@ public class NGOAidManagementSystem {
     private static void showLoginScreen() {
         frame = new JFrame("NGO Aid Management System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400); // Increase frame size
+        frame.setSize(1200, 600); // Increase frame size
     
         JPanel panel = new JPanel(new GridLayout(3, 2));
         JLabel userLabel = new JLabel("Username:");
@@ -100,7 +100,7 @@ public class NGOAidManagementSystem {
         JPasswordField passText = new JPasswordField();
         passText.setPreferredSize(new Dimension(200, 24)); // Set preferred size for password field
         JLabel roleLabel = new JLabel("Role:");
-        String[] roles = {"Donor", "Volunteer", "IndigentPerson", "OperationCoordinator", "SystemAdministrator"};
+        String[] roles = {"Donor", "IndigentPerson", "OperationCoordinator", "SystemAdministrator"};
         JComboBox<String> roleComboBox = new JComboBox<>(roles);
     
         panel.add(userLabel);
@@ -148,9 +148,6 @@ public class NGOAidManagementSystem {
         switch (role) {
             case "Donor":
                 showDonorInterface(username);
-                break;
-            case "Volunteer":
-                showVolunteerInterface(username);
                 break;
             case "IndigentPerson":
                 showIndigentPersonInterface(username);
@@ -299,77 +296,6 @@ public class NGOAidManagementSystem {
     
         historyFrame.getContentPane().add(new JScrollPane(textArea));
         historyFrame.setVisible(true);
-    }
-    
-
-    private static void showVolunteerInterface(String username) {
-        JFrame volunteerFrame = new JFrame("Volunteer Interface");
-        volunteerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        volunteerFrame.setSize(400, 300);
-
-        JButton profileButton = new JButton("Construct a Personal Profile");
-        JButton goBackButton = new JButton("Go Back");
-
-        profileButton.addActionListener(e -> constructProfile(username));
-        goBackButton.addActionListener(e -> {
-            volunteerFrame.dispose();
-            showLoginScreen();
-        });
-
-        JPanel panel = new JPanel();
-        panel.add(profileButton);
-        panel.add(goBackButton);
-
-        volunteerFrame.getContentPane().add(BorderLayout.CENTER, panel);
-        volunteerFrame.setVisible(true);
-    }
-
-    private static void constructProfile(String username) {
-        JFrame profileFrame = new JFrame("Construct a Personal Profile");
-        profileFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        profileFrame.setSize(400, 300);
-
-        JPanel panel = new JPanel(new GridLayout(3, 2));
-        JLabel nameLabel = new JLabel("Name:");
-        JTextField nameText = new JTextField();
-        JLabel skillsLabel = new JLabel("Skills:");
-        JTextField skillsText = new JTextField();
-        JLabel availabilityLabel = new JLabel("Availability:");
-        JTextField availabilityText = new JTextField();
-
-        panel.add(nameLabel);
-        panel.add(nameText);
-        panel.add(skillsLabel);
-        panel.add(skillsText);
-        panel.add(availabilityLabel);
-        panel.add(availabilityText);
-
-        JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(e -> {
-            String name = nameText.getText();
-            String skills = skillsText.getText();
-            String availability = availabilityText.getText();
-            if (!name.isEmpty() && !skills.isEmpty() && !availability.isEmpty()) {
-                saveProfile(username, name, skills, availability);
-                JOptionPane.showMessageDialog(profileFrame, "Profile saved for " + name);
-                profileFrame.dispose();
-            } else {
-                JOptionPane.showMessageDialog(profileFrame, "All fields must be filled");
-            }
-        });
-
-        profileFrame.getContentPane().add(BorderLayout.CENTER, panel);
-        profileFrame.getContentPane().add(BorderLayout.SOUTH, saveButton);
-        profileFrame.setVisible(true);
-    }
-
-    private static void saveProfile(String username, String name, String skills, String availability) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(username + "_profile.txt"))) {
-            bw.write(name + "," + skills + "," + availability);
-            bw.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private static void showIndigentPersonInterface(String username) {
@@ -608,8 +534,6 @@ public class NGOAidManagementSystem {
         }
     }
     
-    
-
     private static void reviewAidRequestBacklog(String username) {
         JFrame backlogFrame = new JFrame("Aid Request Backlog");
         backlogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -705,7 +629,6 @@ public class NGOAidManagementSystem {
         }
     }
     
-
     private static void showAdminInterface(String username) {
         JFrame adminFrame = new JFrame("Admin Interface");
         adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -734,22 +657,183 @@ public class NGOAidManagementSystem {
     private static void manageUsers(String username) {
         JFrame manageFrame = new JFrame("Manage Users");
         manageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        manageFrame.setSize(400, 300);
-
-        JTextArea textArea = new JTextArea(10, 30);
-        textArea.setText("Managing Users for " + username + ":\n\n");
+        manageFrame.setSize(800, 600);
+    
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel usersPanel = new JPanel();
+        usersPanel.setLayout(new BoxLayout(usersPanel, BoxLayout.Y_AXIS));
+    
+        JScrollPane scrollPane = new JScrollPane(usersPanel);
+        panel.add(scrollPane, BorderLayout.CENTER);
+    
+        JPanel headerPanel = new JPanel(new GridLayout(1, 6));
+        headerPanel.add(new JLabel("Username"));
+        headerPanel.add(new JLabel("Role"));
+        headerPanel.add(new JLabel("Change Role"));
+        headerPanel.add(new JLabel("Change Password"));
+        headerPanel.add(new JLabel("Remove User"));
+        usersPanel.add(headerPanel);
+        usersPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+    
+        ArrayList<JComboBox<String>> roleComboBoxes = new ArrayList<>();
+        ArrayList<JButton> passwordButtons = new ArrayList<>();
+        ArrayList<JButton> removeButtons = new ArrayList<>();
+        ArrayList<String> usernames = new ArrayList<>();
+    
         try (BufferedReader br = new BufferedReader(new FileReader("infos.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                textArea.append(line + "\n");
+                String[] parts = line.split(",");
+                if (parts.length == 3) {  // Ensure the line has the correct number of fields
+                    JPanel userPanel = new JPanel(new GridLayout(1, 6));
+                    
+                    JLabel usernameLabel = new JLabel(parts[0]);
+                    String[] roles = {"Donor", "IndigentPerson", "OperationCoordinator", "SystemAdministrator"};
+                    JComboBox<String> roleComboBox = new JComboBox<>(roles);
+                    roleComboBox.setSelectedItem(parts[2]);
+                    JButton changeRoleButton = new JButton("Change Role");
+                    JButton changePasswordButton = new JButton("Change Password");
+                    JButton removeUserButton = new JButton("Remove User");
+    
+                    roleComboBoxes.add(roleComboBox);
+                    passwordButtons.add(changePasswordButton);
+                    removeButtons.add(removeUserButton);
+                    usernames.add(parts[0]);
+    
+                    changeRoleButton.addActionListener(e -> changeUserRole(parts[0], (String) roleComboBox.getSelectedItem()));
+                    changePasswordButton.addActionListener(e -> changeUserPassword(parts[0]));
+                    removeUserButton.addActionListener(e -> removeUser(parts[0], manageFrame));
+    
+                    userPanel.add(usernameLabel);
+                    userPanel.add(new JLabel(parts[2]));  // Display current role
+                    userPanel.add(roleComboBox);
+                    userPanel.add(changeRoleButton);
+                    userPanel.add(changePasswordButton);
+                    userPanel.add(removeUserButton);
+    
+                    usersPanel.add(userPanel);
+                    usersPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+                } else {
+                    System.out.println("Invalid line format: " + line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        manageFrame.getContentPane().add(new JScrollPane(textArea));
+    
+        JPanel bottomPanel = new JPanel();
+        JButton addUserButton = new JButton("Add User");
+        addUserButton.addActionListener(e -> showRegistrationScreen());
+        bottomPanel.add(addUserButton);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+    
+        manageFrame.getContentPane().add(panel);
         manageFrame.setVisible(true);
     }
+    
+    private static void changeUserRole(String username, String newRole) {
+        try (BufferedReader br = new BufferedReader(new FileReader("infos.txt"))) {
+            ArrayList<String> lines = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(username)) {
+                    parts[2] = newRole;
+                }
+                lines.add(String.join(",", parts));
+            }
+    
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("infos.txt"))) {
+                for (String l : lines) {
+                    bw.write(l);
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void changeUserPassword(String username) {
+        JFrame passwordFrame = new JFrame("Change Password");
+        passwordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        passwordFrame.setSize(300, 200);
+    
+        JPanel panel = new JPanel(new GridLayout(3, 2));
+        JLabel passLabel = new JLabel("New Password:");
+        JPasswordField passText = new JPasswordField();
+        JButton changeButton = new JButton("Change Password");
+    
+        changeButton.addActionListener(e -> {
+            String newPassword = new String(passText.getPassword());
+            if (!newPassword.isEmpty()) {
+                updatePassword(username, newPassword);
+                JOptionPane.showMessageDialog(passwordFrame, "Password changed successfully");
+                passwordFrame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(passwordFrame, "Password cannot be empty");
+            }
+        });
+    
+        panel.add(passLabel);
+        panel.add(passText);
+        panel.add(new JLabel()); // Empty label for alignment
+        panel.add(changeButton);
+    
+        passwordFrame.getContentPane().add(panel);
+        passwordFrame.setVisible(true);
+    }
+    
+    private static void updatePassword(String username, String newPassword) {
+        try (BufferedReader br = new BufferedReader(new FileReader("infos.txt"))) {
+            ArrayList<String> lines = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals(username)) {
+                    parts[1] = newPassword;
+                }
+                lines.add(String.join(",", parts));
+            }
+    
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("infos.txt"))) {
+                for (String l : lines) {
+                    bw.write(l);
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void removeUser(String username, JFrame manageFrame) {
+        int confirmation = JOptionPane.showConfirmDialog(manageFrame, "Are you sure you want to remove this user?", "Confirm Removal", JOptionPane.YES_NO_OPTION);
+        if (confirmation == JOptionPane.YES_OPTION) {
+            try (BufferedReader br = new BufferedReader(new FileReader("infos.txt"))) {
+                ArrayList<String> lines = new ArrayList<>();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    if (!parts[0].equals(username)) {
+                        lines.add(line);
+                    }
+                }
+    
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter("infos.txt"))) {
+                    for (String l : lines) {
+                        bw.write(l);
+                        bw.newLine();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            manageFrame.dispose();
+            manageUsers(username);
+        }
+    }
+     
 
     private static void viewDashboardStatistics(String username) {
         JFrame statsFrame = new JFrame("Dashboard Statistics");
@@ -763,3 +847,4 @@ public class NGOAidManagementSystem {
         statsFrame.setVisible(true);
     }
 }
+
