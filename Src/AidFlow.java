@@ -305,7 +305,7 @@ public class NGOAidManagementSystem {
     private static void showDonorInterface(String username) {
         JFrame donorFrame = new JFrame("Donor Interface");
         donorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        donorFrame.setSize(1200, 600);
+        donorFrame.setSize(500, 300);
 
         JButton donateButton = new JButton("Donate Aid");
         JButton viewHistoryButton = new JButton("View Donation History");
@@ -459,7 +459,7 @@ public class NGOAidManagementSystem {
     private static void showIndigentPersonInterface(String username) {
         JFrame indigentFrame = new JFrame("Indigent Person Interface");
         indigentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        indigentFrame.setSize(1200, 600);
+        indigentFrame.setSize(500, 300);
 
         JButton requestAidButton = new JButton("Apply to Receive Aid");
         JButton viewStatusButton = new JButton("View Aid Request Status");
@@ -595,7 +595,7 @@ public class NGOAidManagementSystem {
     private static void showOperationCoordinatorInterface(String username) {
         JFrame coordinatorFrame = new JFrame("Operation Coordinator Interface");
         coordinatorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        coordinatorFrame.setSize(1200, 600);
+        coordinatorFrame.setSize(500, 300);
 
         JButton scheduleButton = new JButton("Schedule Aid Operations");
         JButton reviewBacklogButton = new JButton("Review Aid Request Backlog");
@@ -813,7 +813,7 @@ public class NGOAidManagementSystem {
     private static void showAdminInterface(String username) {
         JFrame adminFrame = new JFrame("Admin Interface");
         adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        adminFrame.setSize(1200, 600);
+        adminFrame.setSize(500, 300);
     
         JButton manageUsersButton = new JButton("Manage Users");
         JButton manageCandidatesButton = new JButton("Manage User Candidates");
@@ -1019,9 +1019,9 @@ public class NGOAidManagementSystem {
         JPanel headerPanel = new JPanel(new GridLayout(1, 6));
         headerPanel.add(new JLabel("Username"));
         headerPanel.add(new JLabel("Role"));
-        headerPanel.add(new JLabel("Change Role"));
-        headerPanel.add(new JLabel("Change Password"));
-        headerPanel.add(new JLabel("Remove User"));
+        headerPanel.add(new JLabel(""));
+        headerPanel.add(new JLabel(""));
+        headerPanel.add(new JLabel(""));
         usersPanel.add(headerPanel);
         usersPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
     
